@@ -4,11 +4,14 @@ from src.contato.domain.provider.contato_provider import ContatoProvider
 class ContatoInsertUseCase:
     
     def __init__(self):
-        self.usecase = ContatoEntityInsert()
+        self.entity = ContatoEntityInsert()
+        self.provider = ContatoProvider()
 
     def execute(self):
-        self.usecase.load_from_request()
-        self.usecase.validate()
+        self.entity.validate()
+        contato = self.provider.get_contato_by_doc(self.entity.doc)
 
-        return ContatoProvider().create_contato(self.usecase)
+        if contato:
+            raise ValueError(f'Contato já cadastrado| (id: {contato['id']}  nome: {contato['nome']})')
 
+        return self.provider.create_contato(self.entity)

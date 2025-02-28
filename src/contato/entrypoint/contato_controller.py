@@ -1,73 +1,27 @@
-from flask import jsonify, request
-from werkzeug.exceptions import BadRequest
+from src.util import handler_controller as handler
 
-from src.contato.domain.entity.contato_entity_insert import ContatoEntityInsert
-from src.contato.domain.entity.contato_entity_update import ContatoEntityUpdate
-from src.contato.domain.provider.contato_provider import ContatoProvider
+from src.contato.domain.usecase.contato_insert_usecase import ContatoInsertUseCase
+from src.contato.domain.usecase.contato_update_usecase import ContatoUpdateUseCase
+from src.contato.domain.usecase.contato_get_all_usecase import ContatoGetAllUseCase
+from src.contato.domain.usecase.contato_get_by_id_usecase import ContatoGetByIdUseCase
+from src.contato.domain.usecase.contato_get_by_doc_usecase import ContatoGetByDocUseCase
+from src.contato.domain.usecase.contato_delete_usecase import ContatoDeleteUseCase
+
 
 def create_contato():
-    try:
-        contato_entity = ContatoEntityInsert()
-        contato_entity.load_from_request()
-        contato_entity.validate()
+    return handler.handle_usecase_insert(ContatoInsertUseCase)
 
-        provider = ContatoProvider()
-
-        contato: str = provider.get_contato_by_doc(contato_entity.doc)
-        if contato:
-            return jsonify({"error": f'Contato já cadastrado {contato}'}), 400
-
-        new_contato = provider.create_contato(contato_entity)
-
-        return jsonify({"message": "Contato criado com sucesso", "id": new_contato.con_id}), 201  
-
-    except BadRequest:
-        return jsonify({"error": "Requisição inválida. Verifique o formato dos dados enviados."}), 400
-    except Exception as e:
-        print("Erro ao criar contato:", e)
-        return jsonify({"error": "Erro interno do servidor", "message": str(e)}), 500
-    
 def update_contato():
-    try:
-        contato_entity = ContatoEntityUpdate()
-        contato_entity.load_from_request()
-        contato_entity.validate()
-
-        provider = ContatoProvider()
-
-        contato = provider.get_contato_by_doc(contato_entity.doc)
-        if contato:
-            if contato['id'] != contato_entity.id:
-                return jsonify({"error": f'Existe um outro Contato com o CPF/CNPJ cadastrado {contato["doc"]}'}), 400
-
-        new_contato = provider.update_contato(contato_entity)
-
-        if not new_contato:
-            return jsonify({"error": "Erro ao tentar atualizar o contato!"}), 404
-
-        return jsonify({"message": "Contato atualizado com sucesso"}), 200  
-
-    except BadRequest:
-        return jsonify({"error": "Requisição inválida. Verifique o formato dos dados enviados."}), 400
-    except Exception as e:
-        print("Erro ao criar contato:", e)
-        return jsonify({"error": "Erro interno do servidor", "message": str(e)}), 500
+    return handler.handle_usecase_update(ContatoUpdateUseCase)
 
 def get_all_contato():
-    all = ContatoProvider().get_all_contato()
-    return jsonify(all)
+    return handler.handle_usecase_execution(ContatoGetAllUseCase)
 
 def get_by_id_contato(id:int):
-    contato = ContatoProvider().get_contato_by_id(id)
-    if not contato:
-        return jsonify({"error": "Contato não encontrado"}), 404
-    return jsonify(contato)
+    return handler.handle_usecase_execution(ContatoGetByIdUseCase, id)
 
-def get_by_doc_contato(doc:str):
-    contato = ContatoProvider().get_contato_by_doc(doc)
-    if not contato:
-        return jsonify({"error": "Contato não encontrado"}), 404
-    return jsonify(contato)    
+def get_by_doc_contato(doc: str):
+    return handler.handle_usecase_execution(ContatoGetByDocUseCase, doc)
 
 def delete_contato(id):
-    return {'message': f'Delete Contato {id}'}
+    return handler.handle_usecase_delete(ContatoDeleteUseCase, id)

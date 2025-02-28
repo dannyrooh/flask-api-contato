@@ -9,6 +9,9 @@ from src.util.cpf_cnpj_util import CpfCnpjUtil
 
 class ContatoProvider:
 
+    def __init__(self):
+        self.repository = ContatoRepository()
+
     def create_contato(self, entity: ContatoEntityInsert) -> Contato:
 
         contato = Contato()
@@ -28,14 +31,14 @@ class ContatoProvider:
         contato.con_private_token = secrets.randbelow(10000000)
         contato.con_root = os.getenv('ROOT_ID')
 
-        return ContatoRepository().create(contato)
+        return self.repository.create(contato)
     
     def update_contato(self, entity: ContatoEntityUpdate) -> Contato:
         
         contato_old = self.get_contato_by_id(entity.id)
 
         if not contato_old:
-            raise Exception('Contato não encontrado ou excluído')
+            raise ValueError('Contato não encontrado ou excluído')
 
         updated_data = {
             "con_nome": entity.nome,
@@ -57,22 +60,22 @@ class ContatoProvider:
             updated_data["con_tipo"] = contato_old["tipo"]
             updated_data["con_doc"] = contato_old["doc"]
 
-        # Mantém os valores antigos
         updated_data["con_hash"] = contato_old["hash"]
-        # updated_data["con_private_token"] = contato_old["private_token"]
         updated_data["con_root"] = contato_old["root"]
 
-        return ContatoRepository().update(entity.id, updated_data)
+        return self.repository.update(entity.id, updated_data)
 
+    def delete_contato(self, contato_id: int):
+        return self.repository.delete(contato_id)
 
     def get_contato_by_id(self, contato_id: int) -> Contato:
-        return ContatoRepository().get_by_id(contato_id)
+        return self.repository.get_by_id(contato_id)
 
     def get_contato_by_doc(self, doc: str) -> Contato:
         doc = CpfCnpjUtil(doc).unformat()
         if doc:
-            return ContatoRepository().get_by_doc(doc)
+            return self.repository.get_by_doc(doc)
         return None
 
     def get_all_contato(self) -> list:
-        return ContatoRepository().get_all()
+        return self.repository.get_all()

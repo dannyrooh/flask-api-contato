@@ -1,9 +1,10 @@
 class CpfCnpjUtil:
     def __init__(self, doc: str):
         self.doc = doc
-        self.doc = self.unformat()
     
-    def unformat(self):
+    def unformat(self, doc=None):
+        if doc:
+            self.doc = doc
         if not self.doc:
             return ''
         unformatted = ''.join(filter(str.isdigit, self.doc))
@@ -15,7 +16,9 @@ class CpfCnpjUtil:
             return unformatted.zfill(14)
         return unformatted
     
-    def format(self):
+    def format(self, doc=None):
+        if doc:
+            self.doc = doc
         unformatted = self.unformat()
         if len(unformatted) == 11:
             return f'{unformatted[:3]}.{unformatted[3:6]}.{unformatted[6:9]}-{unformatted[9:]}'
@@ -24,8 +27,11 @@ class CpfCnpjUtil:
         return self.doc
 
 
-    def validate(self):
+    def validate(self, doc=None):
+        if doc:
+            self.doc = doc
         unformatted = self.unformat()
+        print(unformatted, '->',len(unformatted) )
         if len(unformatted) == 11:
             return self._validate_cpf(unformatted)
         elif len(unformatted) == 14:
@@ -45,9 +51,14 @@ class CpfCnpjUtil:
     def _validate_cnpj(self, cnpj):
         if len(cnpj) != 14 or not cnpj.isdigit():
             return False
-        weights = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+        weights_first = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+        weights_second = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
         for i in range(12, 14):
-            value = sum((int(cnpj[num]) * weights[num + 1 - i] for num in range(0, i)))
+            if i == 12:
+                weights = weights_first
+            else:
+                weights = weights_second
+            value = sum((int(cnpj[num]) * weights[num] for num in range(0, i)))
             digit = (value % 11)
             if digit < 2:
                 digit = 0
