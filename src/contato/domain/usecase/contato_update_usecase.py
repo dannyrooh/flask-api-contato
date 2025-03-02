@@ -9,10 +9,13 @@ class ContatoUpdateUseCase:
 
     def execute(self):
         self.entity.validate()
+
         contato = self.provider.get_contato_by_doc(self.entity.doc)
 
         if contato and (contato['id'] != self.entity.id):
             raise ValueError(f'Existe um outro Contato ja cadastrado com o CNPJ/CPF informado! (id: {contato["id"]}  nome: {contato["nome"]})')
+        
+        flagUpdated = self.provider.update_contato(self.entity)
 
-        return self.provider.update_contato(self.entity)
-
+        if not flagUpdated:
+            raise ValueError('Contato não atualizado')

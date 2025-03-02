@@ -19,10 +19,11 @@ class ContatoEntity:
         if not self.ident and self.nome:
             self.ident = self.nome.split()[0]
 
+    def validate(self):
+
         self.cpfCnpjUtil = CpfCnpjUtil(self.doc)
         self.doc = self.cpfCnpjUtil.unformat()
 
-    def validate(self):
         data = {'nome': self.nome, 'doc': self.doc}
         required_fields = [ 'nome', 'doc']
         missing_fields = [field for field in required_fields if not data.get(field)]

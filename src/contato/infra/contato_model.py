@@ -34,10 +34,10 @@ class Contato(db.Model):
     
     def toJson(self):   
             return {"id": self.con_id, 
-            "nome": self.con_nome, 
-            "ident": self.con_ident, 
-            "codigo": self.con_codigo, 
-            "doc": self.con_doc, 
-            "tipo": self.con_tipo, 
-            "hash": self.con_hash, 
-            "root": self.con_root}     
+                    "nome": self.con_nome, 
+                    "ident": self.con_ident, 
+                    "codigo": self.con_codigo, 
+                    "doc": self.con_doc, 
+                    "tipo": self.con_tipo, 
+                    "hash": self.con_hash, 
+                    "root": self.con_root}     

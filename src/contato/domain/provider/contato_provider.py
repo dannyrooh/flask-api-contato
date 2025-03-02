@@ -33,7 +33,7 @@ class ContatoProvider:
 
         return self.repository.create(contato)
     
-    def update_contato(self, entity: ContatoEntityUpdate) -> Contato:
+    def update_contato(self, entity: ContatoEntityUpdate):
         
         contato_old = self.get_contato_by_id(entity.id)
 
@@ -63,7 +63,9 @@ class ContatoProvider:
         updated_data["con_hash"] = contato_old["hash"]
         updated_data["con_root"] = contato_old["root"]
 
-        return self.repository.update(entity.id, updated_data)
+        row_count = self.repository.update(entity.id, updated_data)
+
+        return row_count > 0 
 
     def delete_contato(self, contato_id: int):
         return self.repository.delete(contato_id)
@@ -72,10 +74,7 @@ class ContatoProvider:
         return self.repository.get_by_id(contato_id)
 
     def get_contato_by_doc(self, doc: str) -> Contato:
-        doc = CpfCnpjUtil(doc).unformat()
-        if doc:
-            return self.repository.get_by_doc(doc)
-        return None
+        return self.repository.get_by_doc(doc)
 
     def get_all_contato(self) -> list:
         return self.repository.get_all()

@@ -15,3 +15,7 @@ flask --app app.py  run  --debug
 ou
 
 $env:FLASK_APP = ".\src\app.py"; flask run --debug
+
+## atualizar o requirements
+
+pip freeze > requirements.txt

@@ -43,23 +43,20 @@ class ContatoRepository:
                     setattr(existing_contato, key, value)
 
             self.db.commit()
-            self.db.refresh(existing_contato)
-            return existing_contato.toJson()
+            updated_rows = self.db.query(Contato).filter(Contato.con_id == id).count()
+            return updated_rows 
         except Exception as e:
             self.db.rollback()
-            print(f"Erro ao atualizar contato {id}: {e}")
-            return None
+            raise Exception(f"Erro ao atualizar o contato {id}: {e}")
 
     def delete(self, id: int):
         contato = self.db.query(Contato).filter(Contato.con_id == id).first()
         if not contato:
             return False
-        
         try:
             self.db.delete(contato)
             self.db.commit()
             return True
         except Exception as e:
             self.db.rollback()
-            print(f"Erro ao deletar contato {id}: {e}")
-            return False
+            raise Exception(f"Erro ao deletar contato {id}: {e}")
